@@ -14,7 +14,7 @@
 
 def construct_blame_string(commitSHA1, commitTimeStamp, author, filename,
                            lineNum, textMatched)
-  "#{commitSHA1} #{commitTimeStamp} #{author} #{filename}:#{lineNum} #{textMatched}"
+  "#{commitSHA1} #{commitTimeStamp} [#{author}] #{filename}:#{lineNum} #{textMatched}"
 end
 
 def git_grep_blame(argv)
