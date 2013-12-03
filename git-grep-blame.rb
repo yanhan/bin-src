@@ -36,7 +36,7 @@ def git_grep_blame(argv)
       mObj = /^([0-9a-fA-F]{1,40}) \((.*)?(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [\+\-]?\d{4})/.match(gbLine)
       if not mObj.nil?
         commitSHA1 = mObj[1]
-        author = mObj[2]
+        author = mObj[2].strip
         commitTimeStamp = mObj[3]
         arr.push(
           construct_blame_string(commitSHA1, commitTimeStamp, author, fname,
