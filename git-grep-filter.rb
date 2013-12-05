@@ -61,6 +61,7 @@ def git_grep_filter argv
               end
             end
           end
+          fileTemp.unlink
         else
           res.each do |line|
             less.puts line
