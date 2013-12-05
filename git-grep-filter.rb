@@ -4,7 +4,7 @@
 #                   unwanted keywords
 #
 # Usage:
-# git-grep-filter 'needle' [<removeWord1> ...]
+# git-grep-filter 'needle' [<wordToDiscard> ...]
 #
 # Examples:
 #
