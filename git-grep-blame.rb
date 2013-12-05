@@ -30,6 +30,7 @@ def git_grep_blame(argv)
   gitGrepOut = `git grep -n '#{argv[0]}'`
   gitGrepOut.split("\n").each do |line|
     matchObj = /^(.*?):(\d+):(.*)$/.match(line)
+    next unless matchObj
     fname = matchObj[1]
     lineNum = matchObj[2].to_i
     textMatched = matchObj[3]
