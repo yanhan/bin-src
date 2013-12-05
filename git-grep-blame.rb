@@ -12,6 +12,9 @@
 # ggb 'some_string'
 # ggb '\bstring_with_regex\b'
 
+$: << File.join(ENV['HOME'], 'bin')
+require 'git_utils'
+
 def construct_blame_string(commitSHA1, commitTimeStamp, author, filename,
                            lineNum, textMatched)
   "#{commitSHA1} #{commitTimeStamp} [#{author}] #{filename}:#{lineNum} #{textMatched}"
@@ -54,4 +57,5 @@ def git_grep_blame(argv)
 
 end
 
+GitUtils::exit_if_not_in_git_repo $0
 git_grep_blame ARGV
