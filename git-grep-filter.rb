@@ -16,6 +16,7 @@
 
 $: << File.join(ENV["HOME"], "bin")
 
+require "tempfile"
 require "git_utils"
 
 def git_grep_filter argv
@@ -24,17 +25,51 @@ def git_grep_filter argv
     abort
   end
 
-  cmdString = "git grep -n #{argv[0]}"
+  grepRegex = argv[0]
+  cmdString = "git grep -n #{grepRegex}"
   argv.shift
   argv.each do |line|
     cmdString << " | grep -v '#{line}'"
   end
 
   res = `#{cmdString}`.split("\n")
+  fnameRegex = /^(.*?:\d+:)(.*)/
   if !res.empty?
-    IO.popen("less", "w") do |less|
+    if $stdout.tty?
+      IO.popen("less -R", "w") do |less|
+        myOS = `uname -a`
+        if myOS.start_with?("Darwin")
+          # need to `cat` each line to a temporary file,
+          # then perform `grep` for colorization
+          fileTemp = Tempfile.new("#{$0}")
+          tempFilePath = fileTemp.path
+          res.each do |line|
+            fileTemp.close
+            File.truncate(tempFilePath, 0)
+            if line.start_with?("Binary file")
+              less.puts line
+            else
+              matchObj = fnameRegex.match(line)
+              if matchObj
+                pfx = matchObj[1]
+                File.open(tempFilePath, "w") do |f|
+                  f.write(matchObj[2])
+                end
+                less.puts pfx + `grep --color='always' '#{grepRegex}' #{tempFilePath}`
+              else
+                less.puts line
+              end
+            end
+          end
+        else
+          res.each do |line|
+            less.puts line
+          end
+        end
+      end
+    else
       res.each do |line|
-        less.puts line
+        $stdout.puts line
       end
     end
   end
