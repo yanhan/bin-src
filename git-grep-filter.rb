@@ -59,40 +59,33 @@ def git_grep_filter argv
   if !res.empty?
     if $stdout.tty?
       IO.popen("less -R", "w") do |less|
-        myOS = `uname -a`
-        if myOS.start_with?("Darwin")
-          # split every line into prefix and grepText
-          grepLineArray = res.zip(1..res.size).map do |zipArr|
-            GrepLine.new(zipArr[1], zipArr[0])
-          end
-          fileTemp = Tempfile.new("#{$0}")
-          tempFilePath = fileTemp.path
-          # `cat` the suffixes to the temporary file
-          grepLineArray.each do |grepLine|
-            if !grepLine.isBinary
-              fileTemp.write(grepLine.grepText)
-              fileTemp.write("\n")
-            end
-          end
-          fileTemp.close
-          # perform `grep` for colorization, and obtain its output, split by newline
-          coloredOutput = `grep --color='always' '#{grepRegex}' '#{tempFilePath}'`
-          coloredOutputArray = coloredOutput.split("\n")
-          nonBinaryLines = 0
-          grepLineArray.each do |grepLine|
-            if grepLine.isBinary
-              less.puts grepLine.prefix
-            else
-              less.puts "#{grepLine.prefix} #{coloredOutputArray[nonBinaryLines]}"
-              nonBinaryLines += 1
-            end
-          end
-          fileTemp.unlink
-        else
-          res.each do |line|
-            less.puts line
+        # split every line into prefix and grepText
+        grepLineArray = res.zip(1..res.size).map do |zipArr|
+          GrepLine.new(zipArr[1], zipArr[0])
+        end
+        fileTemp = Tempfile.new("#{$0}")
+        tempFilePath = fileTemp.path
+        # `cat` the suffixes to the temporary file
+        grepLineArray.each do |grepLine|
+          if !grepLine.isBinary
+            fileTemp.write(grepLine.grepText)
+            fileTemp.write("\n")
           end
         end
+        fileTemp.close
+        # perform `grep` for colorization, and obtain its output, split by newline
+        coloredOutput = `grep --color='always' '#{grepRegex}' '#{tempFilePath}'`
+        coloredOutputArray = coloredOutput.split("\n")
+        nonBinaryLines = 0
+        grepLineArray.each do |grepLine|
+          if grepLine.isBinary
+            less.puts grepLine.prefix
+          else
+            less.puts "#{grepLine.prefix} #{coloredOutputArray[nonBinaryLines]}"
+            nonBinaryLines += 1
+          end
+        end
+        fileTemp.unlink
       end
     else
       res.each do |line|
