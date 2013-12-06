@@ -19,6 +19,29 @@ $: << File.join(ENV["HOME"], "bin")
 require "tempfile"
 require "git_utils"
 
+class GrepLine
+  attr_reader :lineNum, :isBinary, :prefix, :grepText
+
+  GREPLINE_REGEX = /^(.*?:\d+:)(.*)/
+  BINARY_FILE_PREFIX = "Binary file"
+
+  def initialize(lineNum, line)
+    @lineNum = lineNum
+    if line.start_with?(BINARY_FILE_PREFIX)
+      @isBinary = true
+      @prefix = line
+    else
+      @isBinary = false
+      matchObj = GREPLINE_REGEX.match(line)
+      if matchObj
+        @prefix = matchObj[1]
+        @grepText = matchObj[2]
+      end
+      # NOTE: Regex failure not handled
+    end
+  end
+end
+
 def git_grep_filter argv
   if argv.empty?
     $stderr.puts "#{$0}: please supply a string for git-grep"
@@ -33,32 +56,35 @@ def git_grep_filter argv
   end
 
   res = `#{cmdString}`.split("\n")
-  fnameRegex = /^(.*?:\d+:)(.*)/
   if !res.empty?
     if $stdout.tty?
       IO.popen("less -R", "w") do |less|
         myOS = `uname -a`
         if myOS.start_with?("Darwin")
-          # need to `cat` each line to a temporary file,
-          # then perform `grep` for colorization
+          # split every line into prefix and grepText
+          grepLineArray = res.zip(1..res.size).map do |zipArr|
+            GrepLine.new(zipArr[1], zipArr[0])
+          end
           fileTemp = Tempfile.new("#{$0}")
           tempFilePath = fileTemp.path
-          res.each do |line|
-            fileTemp.close
-            File.truncate(tempFilePath, 0)
-            if line.start_with?("Binary file")
-              less.puts line
+          # `cat` the suffixes to the temporary file
+          grepLineArray.each do |grepLine|
+            if !grepLine.isBinary
+              fileTemp.write(grepLine.grepText)
+              fileTemp.write("\n")
+            end
+          end
+          fileTemp.close
+          # perform `grep` for colorization, and obtain its output, split by newline
+          coloredOutput = `grep --color='always' '#{grepRegex}' '#{tempFilePath}'`
+          coloredOutputArray = coloredOutput.split("\n")
+          nonBinaryLines = 0
+          grepLineArray.each do |grepLine|
+            if grepLine.isBinary
+              less.puts grepLine.prefix
             else
-              matchObj = fnameRegex.match(line)
-              if matchObj
-                pfx = matchObj[1]
-                File.open(tempFilePath, "w") do |f|
-                  f.write(matchObj[2])
-                end
-                less.puts pfx + `grep --color='always' '#{grepRegex}' #{tempFilePath}`
-              else
-                less.puts line
-              end
+              less.puts "#{grepLine.prefix} #{coloredOutputArray[nonBinaryLines]}"
+              nonBinaryLines += 1
             end
           end
           fileTemp.unlink
