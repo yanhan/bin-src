@@ -17,6 +17,7 @@
 $: << File.join(ENV["HOME"], "bin")
 
 require "tempfile"
+require "terminfo"
 require "git_utils"
 
 class GrepLine
@@ -42,6 +43,48 @@ class GrepLine
   end
 end
 
+# Given a `grep` colorized line in `git grep -n` format, and the number of
+# columns of the terminal, compute the longest prefix of the colorized line
+# that can fit onto the terminal
+def colorized_line_truncate_to_fit(line, termCols)
+  # this regex is for `grep` colorized output, not `git-grep`
+  colorRegex = /(\e\[[^m]*?m\e\[K)([^\e]*)(\e\[[^m]*m\e\[K)/
+  lineLen = line.size
+  if lineLen <= termCols
+    return line
+  end
+  searchFromIdx = 0
+  totalChars = 0
+  matchObj = colorRegex.match(line, searchFromIdx)
+  until matchObj.nil? do
+    # chars before match
+    numChars = matchObj.begin(0) - searchFromIdx
+    if totalChars + numChars >= termCols
+      stopIdx = searchFromIdx + termCols - totalChars - 1
+      return line[0..stopIdx]
+    end
+    totalChars += numChars
+    # chars between escape sequence
+    numChars = matchObj[2].size
+    if totalChars + numChars >= termCols
+      stopIdx = matchObj.begin(2) + termCols - totalChars - 1
+      return line[0..stopIdx] + matchObj[3]
+    else
+      totalChars += numChars
+      searchFromIdx = matchObj.end(0)
+    end
+    matchObj = colorRegex.match(line, searchFromIdx)
+  end
+  # no more escape sequences
+  numChars = lineLen - searchFromIdx
+  if totalChars + numChars <= termCols
+    return line
+  else
+    numChars = termCols - totalChars
+    return line[0..(searchFromIdx + numChars - 1)]
+  end
+end
+
 def git_grep_filter argv
   if argv.empty?
     $stderr.puts "#{$0}: please supply a string for git-grep"
@@ -58,6 +101,7 @@ def git_grep_filter argv
   res = `#{cmdString}`.split("\n")
   if !res.empty?
     if $stdout.tty?
+      _, termCols = TermInfo.screen_size
       IO.popen("less -R", "w") do |less|
         # split every line into prefix and grepText
         grepLineArray = res.zip(1..res.size).map do |zipArr|
@@ -81,7 +125,9 @@ def git_grep_filter argv
           if grepLine.isBinary
             less.puts grepLine.prefix
           else
-            less.puts "#{grepLine.prefix} #{coloredOutputArray[nonBinaryLines]}"
+            line = "#{grepLine.prefix} #{coloredOutputArray[nonBinaryLines]}"
+            truncatedLine = colorized_line_truncate_to_fit(line, termCols)
+            less.puts truncatedLine
             nonBinaryLines += 1
           end
         end
