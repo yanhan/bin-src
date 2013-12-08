@@ -1,4 +1,5 @@
 $: << File.join(__FILE__, "../..")
+require "tmpdir"
 require "git_utils"
 
 describe GitUtils do
@@ -74,6 +75,27 @@ describe GitUtils do
       expectedLine << " [01;31m[Khere[m[K"
       line = GitUtils.colorized_line_truncate_to_fit(orgLine, 45)
       expect(line).to eq(expectedLine)
+    end
+  end
+
+  describe "in_git_repo?" do
+    it "should return true if we are in a git repository" do
+      cwd = Dir.getwd
+      Dir.mktmpdir do |dirPath|
+        Dir.chdir(dirPath)
+        `git init .`
+        expect(GitUtils.in_git_repo?).to be(true)
+        Dir.chdir(cwd)
+      end
+    end
+
+    it "should return false if we are not in a git repository" do
+      cwd = Dir.getwd
+      Dir.mktmpdir do |dirPath|
+        Dir.chdir(dirPath)
+        expect(GitUtils.in_git_repo?).to be(false)
+        Dir.chdir(cwd)
+      end
     end
   end
 end
