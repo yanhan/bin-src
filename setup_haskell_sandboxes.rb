@@ -134,7 +134,8 @@ def setup_haskell_sandboxes(homeDir)
   puts "Done."
   packagesClassified["ErrorFileExists"].each do |packageName|
     msg = "Failed to install #{packageName}"
-    msg << " (#{File.join(sandboxDir, packageName)} is a file)"
+    msg << " (#{File.join(sandboxDir, packageName)} is a file;"
+    msg << " remove it if you want to install #{packageName}"
     puts msg
   end
 
