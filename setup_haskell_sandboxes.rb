@@ -96,8 +96,6 @@ end
 
 def setup_haskell_sandboxes(homeDir)
   Dir.chdir(homeDir)
-  puts "Calling 'cabal update'..."
-  `cabal update`
   sandboxDir = File.join(homeDir, "haskellsandbox")
   if File.exists?(sandboxDir) && !File.directory?(sandboxDir)
     exit_fatal("#{sandboxDir} is a file. Please remove it to continue")
@@ -106,6 +104,11 @@ def setup_haskell_sandboxes(homeDir)
   end
   FileUtils.chmod(0700, sandboxDir)
   packagesClassified = classify_haskell_packages(sandboxDir, HASKELL_PACKAGES)
+  if !packagesClassified["Pending"].empty?
+    # only call cabal update if we have to install packages
+    puts "Calling cabal update..."
+    `cabal update`
+  end
   packagesClassified["Pending"].each do |packageName|
     packageDest = File.join(sandboxDir, packageName)
     Dir.mkdir(packageDest)
