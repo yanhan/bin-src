@@ -66,5 +66,14 @@ describe GitUtils do
       line = GitUtils.colorized_line_truncate_to_fit(orgLine, 158)
       expect(line).to eq(orgLine)
     end
+
+    it "will truncate part of colorized text that exceeds width of terminal" do
+      orgLine = "This test should truncate the text right [01;31m[Khere"
+      orgLine << " without the stuff here.[m[K"
+      expectedLine = "This test should truncate the text right"
+      expectedLine << " [01;31m[Khere[m[K"
+      line = GitUtils.colorized_line_truncate_to_fit(orgLine, 45)
+      expect(line).to eq(expectedLine)
+    end
   end
 end
