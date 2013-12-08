@@ -1,5 +1,18 @@
 #!/usr/bin/env ruby
 
+# Used to install Haskell packages in cabal sandbox
+#
+# Assumptions:
+# 1. You are using a `cabal` that supports the `sandbox` command.
+#    Otherwise, run the `setup_cabal` script
+# 2. $HOME environment variable is set, and you have read, write and
+#    execute permissions
+# 3. The directory storing the sandboxes will be at $HOME/haskellsandbox
+#    Individual sandboxes are stored at $HOME/haskellsandbox/package-version ,
+#    depending on the package and version.
+# 4. Currently, to add new packages, append a new entry to the
+#    `HASKELL_PACKAGES` constant below.
+
 require "fileutils"
 require "pty"
 require "tmpdir"
