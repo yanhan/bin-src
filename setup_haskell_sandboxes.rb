@@ -68,6 +68,32 @@ def cabal_no_sandbox
   !hasSandbox
 end
 
+# Takes an Array of HaskellPackage objects, and returns a Hash with keys
+# "Installed" - already installed packages
+# "ErrorFileExists" - a file with the same name as the package's destination
+#                     directory exists
+# "Pending" - Going to install
+#
+# Each key indexes into an array of strings (in 'package-version' format)
+def classify_haskell_packages(sandboxDir, haskellPackages)
+  ret = {}
+  ret["Installed"] = []
+  ret["ErrorFileExists"] = []
+  ret["Pending"] = []
+  haskellPackages.each do |hpkg|
+    packageName = hpkg.get_package_dir
+    packageDest = File.join(sandboxDir, packageName)
+    if !File.exists?(packageDest)
+      ret["Pending"].push(packageName)
+    elsif File.directory?(packageDest)
+      ret["Installed"].push(packageName)
+    elsif File.file?(packageDest)
+      ret["ErrorFileExists"].push(packageName)
+    end
+  end
+  ret
+end
+
 def setup_haskell_sandboxes(homeDir)
   Dir.chdir(homeDir)
   puts "Calling 'cabal update'..."
@@ -79,51 +105,41 @@ def setup_haskell_sandboxes(homeDir)
     Dir.mkdir(sandboxDir)
   end
   FileUtils.chmod(0700, sandboxDir)
-  packagesInstalled = []
-  packagesAlreadyThere = []
-  packagesFailedDueToExistingFile = []
-  HASKELL_PACKAGES.each do |hpkg|
-    Dir.chdir(sandboxDir)
-    packageName = hpkg.get_package_dir
-    if !File.exists?(packageName)
-      Dir.mkdir(packageName)
-      FileUtils.chmod(0700, packageName)
-      Dir.chdir(packageName)
-      puts "Installing #{packageName}"
-      `cabal sandbox init`
-      # Continuously print output of process, taken from
-      # http://stackoverflow.com/questions/1154846/continuously-read-from-stdout-of-external-process-in-ruby/1162850#1162850
-      begin
-        PTY.spawn("cabal install #{packageName}") do |r, w, pid|
-          begin
-            r.each { |line| print line }
-          rescue Errno::EIO
-            # end of output
-          end
+  packagesClassified = classify_haskell_packages(sandboxDir, HASKELL_PACKAGES)
+  packagesClassified["Pending"].each do |packageName|
+    packageDest = File.join(sandboxDir, packageName)
+    Dir.mkdir(packageDest)
+    FileUtils.chmod(0700, packageDest)
+    Dir.chdir(packageDest)
+    puts "Installing #{packageName}"
+    `cabal sandbox init`
+    # Continuously print output of process, taken from
+    # http://stackoverflow.com/questions/1154846/continuously-read-from-stdout-of-external-process-in-ruby/1162850#1162850
+    begin
+      PTY.spawn("cabal install #{packageName}") do |r, w, pid|
+        begin
+          r.each { |line| print line }
+        rescue Errno::EIO
+          # end of output
         end
-      rescue PTY::ChildExited
-        # child exited
       end
-      packagesInstalled.push(packageName)
-    elsif File.directory?(packageName)
-      packagesAlreadyThere.push(packageName)
-    elsif File.file?(packageName)
-      packagesFailedDueToExistingFile.push(packageName)
+    rescue PTY::ChildExited
+      # child exited
     end
   end
 
   puts "Done."
-  packagesFailedDueToExistingFile.each do |packageName|
+  packagesClassified["ErrorFileExists"].each do |packageName|
     msg = "Failed to install #{packageName}"
     msg << " (#{File.join(sandboxDir, packageName)} is a file)"
     puts msg
   end
 
-  packagesAlreadyThere.each do |packageName|
+  packagesClassified["Installed"].each do |packageName|
     puts "#{packageName} was installed prior to this."
   end
 
-  packagesInstalled.each do |packageName|
+  packagesClassified["Pending"].each do |packageName|
     msg = "Successfully installed #{packageName}"
     msg << " (at #{File.join(sandboxDir, packageName)})"
     puts msg
