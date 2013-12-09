@@ -1,6 +1,7 @@
 $: << File.join(__FILE__, "../..")
 require "tmpdir"
 require "git_utils"
+require "spec_helper"
 
 describe GitUtils do
   describe "colorized_line_truncate_to_fit" do
