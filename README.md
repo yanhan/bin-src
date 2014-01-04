@@ -12,5 +12,12 @@ for any use you see fit.
 
 # Deployment
 
-Run `./deploy.sh`. By default, the deployment directory is `$HOME/bin`.
-Edit the `deploy.sh` bash script to change that.
+The deploy script is `./deploy.sh`. You will have to specify a target to deploy.
+Targets are inside the `deploy.sh` file.
+
+To deploy everything, simply run
+
+    ./deploy.sh all
+
+The default deployment directory is '$HOME/bin'. Feel free to modify the
+`deploy.sh` script to change it.
