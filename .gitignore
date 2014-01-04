@@ -1,3 +1,7 @@
 *~
 *.swo
 *.swp
+.cabal-sandbox
+.shelly
+cabal.sandbox.config
+dist

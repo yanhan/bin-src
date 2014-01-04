@@ -9,6 +9,14 @@ for any use you see fit.
 
 * Bash
 * Ruby
+* Haskell Platform
+
+# Setup
+
+NOTE: This should be done before you build / deploy anything.
+
+Run the `setup.sh` script. It will setup a Cabal Sandbox and install the
+necessary Haskell dependencies.
 
 # Deployment
 
@@ -21,3 +29,8 @@ To deploy everything, simply run
 
 The default deployment directory is '$HOME/bin'. Feel free to modify the
 `deploy.sh` script to change it.
+
+# Building
+
+The build script is `build.sh`. You must specify a build target. Build targets
+are available inside the `build.sh` file.
