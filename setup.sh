@@ -6,5 +6,6 @@
 if ! [ -d .cabal-sandbox ]
 then
   cabal sandbox init
+  cabal configure
   cabal install --only-dependencies
 fi
