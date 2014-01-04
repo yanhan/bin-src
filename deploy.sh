@@ -16,6 +16,15 @@ case "$1" in
     chmod 700 ggb ggf setup_cabal setup_haskell_sandboxes
     ;;
 
+  git-grep-filter)
+    cabal build git-grep-filter
+    if [ $? -eq 0 ]
+    then
+      cp dist/build/git-grep-filter/git-grep-filter $BIN_DIR/ggf
+      chmod 700 $BIN_DIR/ggf
+    fi
+    ;;
+
   *)
     echo "$0: Unknown target to deploy"
     exit 1
