@@ -34,7 +34,8 @@ end
 HASKELL_PACKAGES = [
   HaskellPackage.new("hakyll", "4.4.2.0"),
   HaskellPackage.new("yesod", "1.2.4"),
-  HaskellPackage.new("yesod-bin", "1.2.5.1")
+  HaskellPackage.new("yesod-bin", "1.2.5.1"),
+  HaskellPackage.new("haddock", "2.10.0")
 ]
 
 def exit_fatal(msg)
@@ -80,6 +81,8 @@ def classify_haskell_packages(sandboxDir, haskellPackages)
   ret["Installed"] = []
   ret["ErrorFileExists"] = []
   ret["Pending"] = []
+  ret["Error"] = []
+  ret["Success"] = []
   haskellPackages.each do |hpkg|
     packageName = hpkg.get_package_dir
     packageDest = File.join(sandboxDir, packageName)
@@ -125,9 +128,16 @@ def setup_haskell_sandboxes(homeDir)
         rescue Errno::EIO
           # end of output
         end
+        # wait for child process to exit to get exit code in $?
+	Process.wait(pid)
       end
     rescue PTY::ChildExited
       # child exited
+    end
+    if $? == 0
+      packagesClassified["Success"].push(packageName)
+    else
+      packagesClassified["Error"].push(packageName)
     end
   end
 
@@ -139,11 +149,15 @@ def setup_haskell_sandboxes(homeDir)
     puts msg
   end
 
+  packagesClassified["Error"].each do |packageName|
+    puts "Failed to install '#{packageName}'"
+  end
+
   packagesClassified["Installed"].each do |packageName|
     puts "#{packageName} was installed prior to this."
   end
 
-  packagesClassified["Pending"].each do |packageName|
+  packagesClassified["Success"].each do |packageName|
     msg = "Successfully installed #{packageName}"
     msg << " (at #{File.join(sandboxDir, packageName)})"
     puts msg
