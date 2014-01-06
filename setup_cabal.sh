@@ -20,6 +20,7 @@ set -u
 APT_GET=apt-get
 CABAL_VERSION_WANT=1.18.0.2
 CABAL_GIT_TAG_CHECKOUT=Cabal-v1.18.1.2
+SCRIPT_DIR=`pwd`
 
 program_installed() {
   which -s $1
@@ -96,18 +97,23 @@ else
   fi
 fi
 
-cd $HOME
+# Clone cabal and install it
+CABAL_CLONE_DIR=`mktemp -d /tmp/setup_cabal_XXXXXX`
+cd $CABAL_CLONE_DIR
+echo "Cloning cabal to a temporary directory ($CABAL_CLONE_DIR)"
 
-if ! [[ -d cabal ]]
-then
-  git clone 'https://github.com/haskell/cabal.git' cabal
-fi
-
-# Assume we are not actually cabal hackers
+git clone 'https://github.com/haskell/cabal.git' cabal
 cd cabal
 git checkout $CABAL_GIT_TAG_CHECKOUT
 cabal install Cabal/ cabal-install/
+if [ $? -eq 0 ]
+then
+  # final messages
+  echo "Done."
+  echo "Please append/prepend the path to Cabal to your PATH environment variable"
+else
+  echo "Some Error occurred"
+fi
 
-# final messages
-echo "Done."
-echo "Please append/prepend the path to Cabal to your PATH environment variable"
+cd $SCRIPT_DIR
+rm -rf $CABAL_CLONE_DIR
