@@ -21,8 +21,8 @@ APT_GET=apt-get
 CABAL_VERSION_WANT=1.18.0.2
 CABAL_GIT_TAG_CHECKOUT=Cabal-v1.18.1.2
 
-package_installed() {
-  dpkg -s $1 >/dev/null 2>&1
+program_installed() {
+  which -s $1
 }
 
 install_package() {
@@ -37,14 +37,8 @@ exit_fatal () {
 
 if [ `cabal --numeric-version` = $CABAL_VERSION_WANT ]
 then
-  echo "cabal is up to date (version $CABAL_VERSION_WANT). Exiting."
+  echo "cabal is up to date (version $CABAL_VERSION_WANT)."
   exit 0
-fi
-
-if ! which $APT_GET >/dev/null
-then
-  echo "Fatal: Sorry, only systems with $APT_GET are supported"
-  exit 1
 fi
 
 # check for presence of $HOME env var
@@ -63,22 +57,43 @@ then
   exit_fatal "Fatal: Insufficient permissions for $HOME (needs read, write, execute)"
 fi
 
-echo "Updating system..."
-sudo $APT_GET update
-
-if ! package_installed haskell-platform
+if which $APT_GET >/dev/null
 then
-  install_package haskell-platform
-fi
+  echo "apt-get detected on your system."
+  echo "Updating system..."
+  sudo $APT_GET update
 
-if ! package_installed cabal-install
-then
-  install_package cabal-install
-fi
+  if ! program_installed haskell-platform
+  then
+    install_package haskell-platform
+  fi
 
-if ! package_installed git
-then
-  install_package git
+  if ! program_installed cabal-install
+  then
+    install_package cabal-install
+  fi
+
+  if ! program_installed git
+  then
+    install_package git
+  fi
+else
+  # system has no apt-get.
+  # Check that GHC, cabal, git are installed
+  if ! program_installed ghc
+  then
+    exit_fatal "ghc is missing. Please install it and try again"
+  fi
+
+  if ! program_installed cabal
+  then
+    exit_fatal "cabal is missing. Please install it and try again"
+  fi
+
+  if ! program_installed git
+  then
+    exit_fatal "git is missing. Please install it and try again"
+  fi
 fi
 
 cd $HOME
@@ -95,4 +110,4 @@ cabal install Cabal/ cabal-install/
 
 # final messages
 echo "Done."
-echo 'Please append $HOME/.cabal/bin to your $PATH'
+echo "Please append/prepend the path to Cabal to your PATH environment variable"
