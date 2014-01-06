@@ -14,9 +14,15 @@ for any use you see fit.
 # Setup
 
 NOTE: This should be done before you build / deploy anything.
+Please ensure that you fulfil the system requirements before this step.
+Otherwise, please install them manually.
 
-Run the `setup.sh` script. It will setup a Cabal Sandbox and install the
-necessary Haskell dependencies.
+Run the `setup_cabal.sh` script. It will try to install the version of
+Cabal in the `CABAL_VERSION_WANT` variable in `setup_cabal.sh`.
+This is required for Cabal sandbox.
+
+Run the `setup.sh` script. It will setup a Cabal Sandbox for the Haskell
+programs in this repository and install the necessary Haskell dependencies.
 
 # Deployment
 
