@@ -6,6 +6,12 @@
 BIN_DIR=$HOME/bin
 BuildSuccess=0
 
+if [ ! -d $BIN_DIR ]
+then
+  echo "$BIN_DIR does not exist. Creating it"
+  mkdir -v $BIN_DIR
+fi
+
 case "$1" in
   all)
     ./build.sh git-grep-filter
