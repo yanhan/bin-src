@@ -28,7 +28,7 @@ program_installed() {
 
 install_package() {
   echo "$1 not installed, calling $APT_GET to install it"
-  sudo APT_GET install $1
+  sudo $APT_GET install $1
 }
 
 exit_fatal () {
