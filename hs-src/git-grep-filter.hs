@@ -36,7 +36,7 @@ main = shelly $ verbosely $ do
       (sysfpGrepColorFname, fh2) <- liftIO $ openTempFile "/tmp" "ggfoutput"
       let grepColorOutFname = T.pack sysfpGrepColorFname
       let grepColorOpts = [ "--color=always ", T.pack ("'" ++ grepStr ++ "'")
-                          , gitGrepOutFname, " > ", grepColorOutFname
+                          , gitGrepOutFname
                           ]
       errExit False $ escaping False $
         runHandle "grep" grepColorOpts (grep_line_truncate fh2)
@@ -59,7 +59,7 @@ grep_line_truncate tmpfh stdoutHandle =
       case eitherLine of
         Left _  -> return ()
         Right s -> do
-          TIO.hPutStrLn tmpfh $ truncate_colorized_line 70 s
+          TIO.hPutStrLn tmpfh $ truncate_colorized_line 80 s
           process_line
 
 -- given a list of strings to filter off, construct the appropriate series of
