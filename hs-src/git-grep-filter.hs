@@ -26,7 +26,7 @@ main = shelly $ verbosely $ do
       -- close the file handles since we dont use them
       liftIO $ hClose fh
       let gitGrepOutFname = T.pack sysfpGitGrepOutFname
-      let gitGrepOpts = T.concat [ "grep --no-color '", T.pack grepStr, "'"]
+      let gitGrepOpts = T.concat [ "grep -n --no-color '", T.pack grepStr, "'"]
       let grepVCmds = construct_grep_inverse_cmd filterList
       let gitGrepCmd = T.concat [gitGrepOpts, grepVCmds, "> ", gitGrepOutFname]
       -- ignore non-zero exit code for git-grep, since a git-grep yielding no
