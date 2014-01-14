@@ -28,4 +28,5 @@ executable git-grep-filter
                      , directory                           >= 1.1
                      , process                             >= 1.1         &&        < 1.2
                      , text-icu                            >= 0.6.3.7
+                     , containers                          >= 0.5.3.1
   default-language:    Haskell2010
