@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module BinSrc.GitUtils (
-  truncate_colorized_line
+  in_git_repo
+, truncate_colorized_line
 , truncate_colorized_line_io
 ) where
 
@@ -11,6 +12,14 @@ import qualified Data.Text as T
 import qualified Data.Text.ICU.Regex as ICU
   ( Regex, end, find, regex', setText, start
   )
+import Shelly (Sh, errExit, lastExitCode, run_, shelly)
+
+-- only works for non bare repositories
+in_git_repo :: Sh Bool
+in_git_repo = shelly $ do
+  errExit False $ run_ "git" ["rev-parse"]
+  exitCode <- lastExitCode
+  return $ exitCode == 0
 
 colorEscapeStart :: T.Text
 colorEscapeStart = "\ESC[01;31m\ESC[K"
