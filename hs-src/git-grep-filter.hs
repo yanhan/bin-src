@@ -15,16 +15,28 @@ import System.IO.Error (IOError)
 import qualified System.Process as Proc (system)
 import Control.Exception (try)
 import BinSrc.GitUtils (truncate_colorized_line)
+import BinSrc.TermSize (get_terminal_cols)
 
 default (T.Text)
 
 data GrepLine = BinaryLine T.Text
               | TextLine T.Text Int
 
+-- Returns the number of columns in the terminal
+-- Defaults to using 80 columns if an exception is thrown by get_terminal_cols
+nrTerminalColumns :: IO Int
+nrTerminalColumns = do
+  eitherErrInt <- try get_terminal_cols :: IO (Either IOError Int)
+  case eitherErrInt of
+    -- default to using 80 columns
+    Left _     -> return 80
+    Right cols -> return cols
+
 main :: IO ()
 main = shelly $ verbosely $ do
   progName <- liftIO getProgName
   cmdArgs <- liftIO getArgs
+  nrColumns <- liftIO nrTerminalColumns
   case cmdArgs of
     (grepStr:filterList) -> do
       (sysfpGitGrepOutFname, fh) <- liftIO $ openTempFile "/tmp" "ggfoutput"
@@ -45,7 +57,7 @@ main = shelly $ verbosely $ do
                           , gitGrepOutFname
                           ]
       errExit False $ escaping False $
-        runHandle "grep" grepColorOpts (grep_line_truncate fh2 prefixes)
+        runHandle "grep" grepColorOpts (grep_line_truncate fh2 nrColumns prefixes)
       liftIO $ hClose fh2
       _ <- liftIO $ Proc.system ("cat " ++ sysfpGrepColorFname ++ " | less -R")
       rm_f $ fromText gitGrepOutFname
@@ -86,8 +98,8 @@ remove_fileinfo_from_lines outFH stdoutHandle =
                   TIO.hPutStrLn outFH (T.tail s'') >>
                   (process_line $ (|>) lst (TextLine grepLinePrefix prefixLen))
 
-grep_line_truncate :: Handle -> S.Seq GrepLine -> Handle -> Sh ()
-grep_line_truncate tmpfh prefixes stdoutHandle =
+grep_line_truncate :: Handle -> Int -> S.Seq GrepLine -> Handle -> Sh ()
+grep_line_truncate tmpfh nrColumns prefixes stdoutHandle =
   liftIO $ process_line prefixes
   where
     process_line :: S.Seq GrepLine -> IO ()
@@ -101,7 +113,7 @@ grep_line_truncate tmpfh prefixes stdoutHandle =
             Left _  -> return ()
             Right s -> do
               -- TODO: Get the actual column width
-              let toTruncate = max 0 (80 - len)
+              let toTruncate = max 0 (nrColumns - len)
               let truncatedLine = truncate_colorized_line toTruncate s
               TIO.hPutStrLn tmpfh $ T.append l truncatedLine
               process_line remXs
