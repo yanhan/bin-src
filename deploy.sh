@@ -39,6 +39,15 @@ case "$1" in
     fi
     ;;
 
+  git-switch-branch)
+    ./build.sh git-switch-branch
+    if [ $? -eq 0 ]
+    then
+      cp dist/build/git-switch-branch/git-switch-branch $BIN_DIR/gsb
+      chmod 700 $BIN_DIR/gsb
+    fi
+    ;;
+
   *)
     echo "$0: Unknown target to deploy"
     exit 1
