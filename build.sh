@@ -5,6 +5,10 @@ case "$1" in
     cabal build git-grep-filter
     ;;
 
+  git-switch-branch)
+    cabal build git-switch-branch
+    ;;
+
   *)
     echo "unknown build target"
     exit 1
