@@ -48,6 +48,11 @@ case "$1" in
     fi
     ;;
 
+  scpi)
+    cp scpi.sh $BIN_DIR/scpi
+    chmod 700 $BIN_DIR/scpi
+	;;
+
   *)
     echo "$0: Unknown target to deploy"
     exit 1
