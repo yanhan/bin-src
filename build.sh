@@ -9,6 +9,9 @@ case "$1" in
     cabal build git-switch-branch
     ;;
 
+  scpi)
+    ;;
+
   *)
     echo "unknown build target"
     exit 1
