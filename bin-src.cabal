@@ -40,3 +40,26 @@ executable git-switch-branch
                      , text                                >= 0.11        &&        < 0.12
                      , text-icu                            >= 0.6.3.7
   default-language:    Haskell2010
+
+
+-- NOTE:
+-- During installation of dependencies, cabal may complain about the system
+-- `regex-compat` and `regex-posix` packages breaking due to reinstalls.
+-- Just supply the --force-reinstalls flag to `cabal install`, like this:
+--
+--     cabal install --enable-tests --only-dependencies --force-reinstalls
+--
+-- and disregard the warning
+Test-suite tests
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      hs-src tests
+  main-is:             TestSuite.hs
+  ghc-options:         -Wall
+  build-depends:       base                                >= 4.5
+                     , shelly                              >= 1.3         &&        < 1.4
+                     , text                                >= 0.11        &&        < 0.12
+                     , HUnit                               >= 1.2
+                     , test-framework                      >= 0.8
+                     , test-framework-hunit                >= 0.3
+                     , text-icu                            >= 0.6.3.7
+  default-language:    Haskell2010
