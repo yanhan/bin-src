@@ -1,11 +1,11 @@
 #!/bin/bash
 
 case "$1" in
-  git-grep-filter)
+  git-grep-filter | ggf)
     cabal build git-grep-filter
     ;;
 
-  git-switch-branch)
+  git-switch-branch | gsb)
     cabal build git-switch-branch
     ;;
 

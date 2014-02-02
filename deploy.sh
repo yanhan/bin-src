@@ -30,7 +30,7 @@ case "$1" in
     fi
     ;;
 
-  git-grep-filter)
+  git-grep-filter | ggf)
     ./build.sh git-grep-filter
     if [ $? -eq 0 ]
     then
@@ -39,7 +39,7 @@ case "$1" in
     fi
     ;;
 
-  git-switch-branch)
+  git-switch-branch | gsb)
     ./build.sh git-switch-branch
     if [ $? -eq 0 ]
     then
