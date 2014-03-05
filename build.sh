@@ -14,6 +14,10 @@ case "$1" in
     cabal build git-switch-branch
     ;;
 
+  git-commit-time)
+    cabal build git-commit-time
+    ;;
+
   scpi)
     ;;
 
