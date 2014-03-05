@@ -49,6 +49,15 @@ case "$1" in
     fi
     ;;
 
+  git-commit-time)
+    ./build.sh git-commit-time
+    if [ $? -eq 0 ]
+    then
+      cp dist/build/git-commit-time/git-commit-time $BIN_DIR/git-commit-time
+      chmod 700 $BIN_DIR/git-commit-time
+    fi
+    ;;
+
   scpi)
     cp scpi.sh $BIN_DIR/scpi
     chmod 700 $BIN_DIR/scpi
