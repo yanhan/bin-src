@@ -21,6 +21,9 @@ case "$1" in
   scpi)
     ;;
 
+  ssh-rm-host)
+    ;;
+
   *)
     echo "unknown build target"
     exit 1

@@ -25,8 +25,10 @@ case "$1" in
       cp git_utils.rb $BIN_DIR/
       cp setup_cabal.sh $BIN_DIR/setup_cabal
       cp setup_haskell_sandboxes.rb $BIN_DIR/setup_haskell_sandboxes
+      cp ssh-rm-host.sh $BIN_DIR/ssh-rm-host
       cd $BIN_DIR
-      chmod 700 cljs-repl ggb gsb ggf setup_cabal setup_haskell_sandboxes
+      chmod 700 cljs-repl ggb gsb ggf setup_cabal setup_haskell_sandboxes \
+        ssh-rm-host
     else
       echo "Deploy failed"
     fi
@@ -68,6 +70,11 @@ case "$1" in
     cp scpi.sh $BIN_DIR/scpi
     chmod 700 $BIN_DIR/scpi
 	;;
+
+  ssh-rm-host)
+    cp ssh-rm-host.sh $BIN_DIR/ssh-rm-host
+    chmod 755 $BIN_DIR/ssh-rm-host
+  ;;
 
   *)
     echo "$0: Unknown target to deploy"
