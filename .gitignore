@@ -1,4 +1,5 @@
 *~
+*.bundle
 *.swo
 *.swp
 .cabal-sandbox
