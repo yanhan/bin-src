@@ -71,6 +71,10 @@ case "$1" in
     chmod 700 $BIN_DIR/scpi
 	;;
 
+  serve_pwd)
+    cp serve_pwd.py $BIN_DIR/serve_pwd
+  ;;
+
   ssh-rm-host)
     cp ssh-rm-host.sh $BIN_DIR/ssh-rm-host
     chmod 755 $BIN_DIR/ssh-rm-host
