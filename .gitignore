@@ -5,4 +5,5 @@
 .cabal-sandbox
 .shelly
 cabal.sandbox.config
+config.py
 dist

@@ -11,7 +11,7 @@ for any use you see fit.
 * Ruby
 * Haskell Platform
 
-# Setup
+## Setup
 
 NOTE: This should be done before you build / deploy anything.
 Please ensure that you fulfil the system requirements before this step.
@@ -23,6 +23,20 @@ This is required for Cabal sandbox.
 
 Run the `setup.sh` script. It will setup a Cabal Sandbox for the Haskell
 programs in this repository and install the necessary Haskell dependencies.
+
+### Setup virtualenv:
+
+    virtualenv venv
+
+### Install requirements
+
+    . venv/bin/activate
+    pip install -r requirements.txt
+
+### Setup sbt
+
+    . venv/bin/activate
+    ./setup.py
 
 # Deployment
 
