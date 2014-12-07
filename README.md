@@ -24,6 +24,12 @@ This is required for Cabal sandbox.
 Run the `setup.sh` script. It will setup a Cabal Sandbox for the Haskell
 programs in this repository and install the necessary Haskell dependencies.
 
+### Setup `config.py`
+
+    cp config.py.sample config.py
+
+And edit the value of the `BIN_DIR` global.
+
 ### Setup virtualenv:
 
     virtualenv venv
