@@ -7,6 +7,7 @@ from __future__ import print_function
 
 import datetime
 import hashlib
+import os
 import os.path
 import shutil
 import sys
@@ -24,7 +25,19 @@ _SBT_PATH = os.path.join(BIN_DIR, "sbt")
 
 def setup():
   """Setup everything"""
+  _create_bin_dir()
   _install_sbt()
+
+def _create_bin_dir():
+  """Creates the `BIN_DIR` if it does not exist"""
+  if not os.path.exists(BIN_DIR):
+    print("Creating BIN_DIR {} ...".format(BIN_DIR))
+    os.makedirs(BIN_DIR, 0700)
+  elif not os.path.isdir(BIN_DIR):
+    _exit_with_message(
+      "Path given in `BIN_DIR` {} exists but is not a directory.\n"
+      "Please remove it manually and run this script again.".format(BIN_DIR)
+    )
 
 def _install_sbt():
   """Installs sbt. Based on instructions from:
