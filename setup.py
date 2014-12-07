@@ -27,6 +27,11 @@ def setup():
   """Setup everything"""
   _create_bin_dir()
   _install_sbt()
+  if BIN_DIR not in os.environ["PATH"].split(":"):
+    print(
+      "BIN_DIR `{}` is not in the PATH environment variable\n"
+      "Remember to add it to your PATH."
+    )
 
 def _create_bin_dir():
   """Creates the `BIN_DIR` if it does not exist"""
