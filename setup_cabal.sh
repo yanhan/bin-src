@@ -18,7 +18,7 @@ set -u
 # NOTE: This script makes use of `sudo`
 
 APT_GET=apt-get
-CABAL_VERSION_WANT=1.18.0.2
+CABAL_VERSION_WANT=1.18.0.5
 CABAL_GIT_TAG_CHECKOUT=Cabal-v1.18.1.2
 SCRIPT_DIR=`pwd`
 
