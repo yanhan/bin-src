@@ -32,7 +32,7 @@ end
 # Yea... probably better to put this externally, but it will suffice
 # for now
 HASKELL_PACKAGES = [
-  HaskellPackage.new("hakyll", "4.4.2.0"),
+  HaskellPackage.new("hakyll", "4.6.2.0"),
   HaskellPackage.new("yesod", "1.2.4"),
   HaskellPackage.new("yesod-bin", "1.2.5.1"),
   HaskellPackage.new("haddock", "2.10.0")
