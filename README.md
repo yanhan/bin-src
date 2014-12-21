@@ -24,6 +24,16 @@ Follow the instructions and install ruby-2.1.1:
 
     rvm install ruby-2.1.1
 
+### Install Haskell Platform 2014.2.0.0 for Mac OS X 10.9
+
+Comes with GHC 7.8.3 .
+
+Download https://www.haskell.org/platform/download/2014.2.0.0/Haskell%20Platform%202014.2.0.0%2064bit.signed.pkg
+
+SHA-256 sum: 62f39246ad95dd2aed6ece5138f6297f945d2b450f215d074820294310e0c48a
+
+Double click the package and follow the instructions.
+
 ## Setup
 
 NOTE: This should be done before you build / deploy anything.
