@@ -8,8 +8,21 @@ for any use you see fit.
 ## System Requirements
 
 * Bash
-* Ruby
+* rvm and ruby-2.1.1
 * Haskell Platform
+
+### Install rvm
+
+Follow the instructions at https://rvm.io/ to install rvm, then navigate to
+this repository and you should see somethig like:
+
+> Unknown ruby string (do not know how to handle): ruby-2.1.1.
+> ruby-2.1.1 is not installed.
+> To install do: 'rvm install ruby-2.1.1'
+
+Follow the instructions and install ruby-2.1.1:
+
+    rvm install ruby-2.1.1
 
 ## Setup
 
