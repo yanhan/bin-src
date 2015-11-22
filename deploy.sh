@@ -26,9 +26,10 @@ case "$1" in
       cp setup_cabal.sh $BIN_DIR/setup_cabal
       cp setup_haskell_sandboxes.rb $BIN_DIR/setup_haskell_sandboxes
       cp ssh-rm-host.sh $BIN_DIR/ssh-rm-host
+      cp vimr.sh $BIN_DIR/vimr
       cd $BIN_DIR
       chmod 700 cljs-repl ggb gsb ggf setup_cabal setup_haskell_sandboxes \
-        ssh-rm-host
+        ssh-rm-host vimr
     else
       echo "Deploy failed"
     fi
@@ -78,6 +79,11 @@ case "$1" in
   ssh-rm-host)
     cp ssh-rm-host.sh $BIN_DIR/ssh-rm-host
     chmod 755 $BIN_DIR/ssh-rm-host
+  ;;
+
+  vimr)
+    cp vimr.sh $BIN_DIR/vimr
+    chmod 755 $BIN_DIR/vimr
   ;;
 
   *)
