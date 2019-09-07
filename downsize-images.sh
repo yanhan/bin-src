@@ -52,7 +52,7 @@ main() {
 					;;
 				4x3)
 					if [ "${width}" -gt 1024 ]; then
-						convert "${img}" -resize 1024x768 "${output_dir}/${img}"
+						convert "${img}" -resize 1280x960 "${output_dir}/${img}"
 					else
 						printf "Copying %s of size %s because it is small enough.\n"  "${img}"  "${size_now}"
 						cp "${img}"  "${output_dir}/${img}"
