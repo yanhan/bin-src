@@ -21,7 +21,7 @@ main() {
 		mkdir -v "${output_dir}"
 	fi
 	local all_images
-	all_images="$(ls ./*.jpg)"
+	all_images="$(find . -maxdepth 1 -type f -name '*.jpg' -o -name '*.JPG')"
 
 	local img
 	local image_size_line
