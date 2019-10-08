@@ -25,7 +25,7 @@ main() {
 	path_to_script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 	cp "${path_to_script_dir}"/templates/bash "${filename}"
 	chmod 0700 "${filename}"
-	vim +'set noet' "${filename}"
+	vim +'set noet'  +6  "${filename}"
 }
 
 main "$@"
