@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+main() {
+	if [ "${#}" -ne 1 ]; then
+		printf >&2 "Usage: %s <URL>\n"  "${0}"
+		exit 1
+	fi
+	local encoded_url
+	encoded_url="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0])'  "${1}")"
+	curl "https://is.gd/create.php?format=simple&url=${encoded_url}"
+	printf "\n"
+}
+
+main "$@"
+# vim:noet
