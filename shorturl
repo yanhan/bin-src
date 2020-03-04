@@ -9,7 +9,13 @@ main() {
 		exit 1
 	fi
 	local encoded_url
-	encoded_url="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0])'  "${1}")"
+	local python_major_version
+	python_major_version="$(python --version 2>&1 | cut -d' ' -f 2 | cut -c 1)"
+	if [ "${python_major_version}" -eq 3 ]; then
+		encoded_url="$(python -c 'import urllib.parse; print(urllib.parse.quote_plus("'${1}'"))')"
+	else
+		encoded_url="$(python -c 'import urllib; print(urllib.quote_plus("'${1}'"))')"
+	fi
 	curl "https://is.gd/create.php?format=simple&url=${encoded_url}"
 	printf "\n"
 }
