@@ -67,6 +67,14 @@ case "$1" in
     fi
     ;;
 
+  kind-with-registry|kwr)
+    if [ ! -d "${BIN_DIR}"/kind-templates ]; then
+      cp -R kind-templates "${BIN_DIR}"/
+    fi
+    cp kind-with-registry.sh "${BIN_DIR}"/
+    cp kind-with-registry.sh "${BIN_DIR}"/kwr
+    ;;
+
   scpi)
     cp scpi.sh $BIN_DIR/scpi
     chmod 700 $BIN_DIR/scpi
