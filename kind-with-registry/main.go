@@ -21,6 +21,7 @@ type createClusterParams struct {
 	RegistryContainerPort int
 	K8sImage              string
 	NrWorkerNodes         int
+	SupportKubePrometheus bool
 }
 
 const (
@@ -40,11 +41,11 @@ const (
 
 	// _kindConfigTemplate is the configuration template for kind clusters
 	_kindConfigTemplate = `
-function(k8sImage, nrWorkerNodes, hostPort, containerPort) {
+function(k8sImage, nrWorkerNodes, hostPort, containerPort, controlPlanePatches={}) {
   apiVersion: 'kind.x-k8s.io/v1alpha4',
   kind: 'Cluster',
   nodes: [
-    { role: 'control-plane', image: k8sImage },
+    { role: 'control-plane', image: k8sImage } + controlPlanePatches,
   ] + [
     { role: 'worker', image: k8sImage }
     for x in std.range(1, nrWorkerNodes)
@@ -57,6 +58,28 @@ function(k8sImage, nrWorkerNodes, hostPort, containerPort) {
   ],
 }
 `
+
+	// _controlPlanePatchKubeletForKubePrometheus is a patch on kind's control
+	// plane configuration for adding a few kubelet flags to support
+	// kube-prometheus
+	// Also see:
+	// https://github.com/prometheus-operator/kube-prometheus
+	// https://kind.sigs.k8s.io/docs/user/configuration/#kubeadm-config-patches
+	// https://kubernetes.io/docs/reference/config-api/kubeadm-config.v1beta3/#kubeadm-k8s-io-v1beta3-NodeRegistrationOptions
+	_controlPlanePatchKubeletForKubePrometheus = `
+{
+  kubeadmConfigPatches: [
+    |||
+    kind: InitConfiguration
+    nodeRegistration:
+      kubeletExtraArgs:
+        authentication-token-webhook: "true"
+        authorization-mode: Webhook
+|||
+  ],
+}
+`
+
 	// _configMapTemplate is template for creating a ConfigMap required by the
 	// local Docker Registry
 	_configMapTemplate = `
@@ -90,6 +113,9 @@ var (
 	// _nrWorkerNodes is the number of desired k8s worker nodes that is
 	// supplied by the user on the command line
 	_nrWorkerNodes int
+	// _supportKubePrometheus is true if we want to run kube-prometheus on
+	// the cluster
+	_supportKubePrometheus bool
 
 	// _k8sImages contains k8s version -> Docker image mapping for kind
 	// The images are for kind 0.11.1
@@ -144,6 +170,7 @@ func rootRunE(cmd *cobra.Command, args []string) error {
 		RegistryContainerPort: _registryContainerPort,
 		K8sImage:              _k8sImages[_k8sVersion],
 		NrWorkerNodes:         _nrWorkerNodes,
+		SupportKubePrometheus: _supportKubePrometheus,
 	}
 	if err := createKindCluster(vm, params); err != nil {
 		return err
@@ -197,6 +224,11 @@ func createKindCluster(vm *jsonnet.VM, params *createClusterParams) error {
 	vm.TLACode("hostPort", strconv.Itoa(params.RegistryHostPort))
 	vm.TLACode("containerPort", strconv.Itoa(params.RegistryContainerPort))
 	vm.TLACode("nrWorkerNodes", strconv.Itoa(params.NrWorkerNodes))
+	controlPlanePatch, err := generateControlPlanePatch(params)
+	if err != nil {
+		return err
+	}
+	vm.TLACode("controlPlanePatches", controlPlanePatch)
 	kindTemplate, err := vm.EvaluateAnonymousSnippet("kind-config.jsonnet", _kindConfigTemplate)
 	if err != nil {
 		return err
@@ -218,6 +250,14 @@ func createKindCluster(vm *jsonnet.VM, params *createClusterParams) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
+}
+
+func generateControlPlanePatch(params *createClusterParams) (string, error) {
+	if params.SupportKubePrometheus {
+		vm := jsonnet.MakeVM()
+		return vm.EvaluateAnonymousSnippet("control-plane-patch.jsonnet", _controlPlanePatchKubeletForKubePrometheus)
+	}
+	return "{}", nil
 }
 
 func connectRegistryToClusterNetwork(registryContainerName string) error {
@@ -275,6 +315,7 @@ func main() {
 	rootCmd.Flags().IntVarP(&_registryHostPort, "port", "p", _defaultRegistryHostPort, "host port of the local Docker Registry")
 	rootCmd.Flags().StringVarP(&_k8sVersion, "k8s-version", "k", _defaultK8sVersion, "Kubernetes version in MAJOR.MINOR format")
 	rootCmd.Flags().IntVarP(&_nrWorkerNodes, "workers", "w", _defaultNrWorkerNodes, "Number of worker nodes in the cluster")
+	rootCmd.Flags().BoolVarP(&_supportKubePrometheus, "kube-prom", "", false, "If true, patches the kind config template's 'kubeadmConfigPatches' section by adding 2 kubelet arguments. This is done to support running kube-prometheus on the cluster")
 	fmt.Println("vim-go")
 	rootCmd.SetArgs(os.Args)
 	if err := rootCmd.Execute(); err != nil {
