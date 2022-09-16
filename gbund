@@ -8,7 +8,7 @@ main() {
 	datetime_now=$(date +'%Y-%m-%d-%H%M%S')
 	repo_path="$(git rev-parse --show-toplevel)"
 	repo_name="$(basename "${repo_path}")"
-	git bundle create "${repo_name}-${datetime_now}.bundle" --objects --all
+	git bundle create "${repo_name}-${datetime_now}.bundle" --all
 }
 
 main "$@"
