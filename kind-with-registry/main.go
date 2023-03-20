@@ -34,7 +34,7 @@ const (
 	_registryContainerPort = 5000
 	// _defaultK8sVersion is the default Kubernetes version that will be used
 	// to create the kind cluster
-	_defaultK8sVersion = "1.23"
+	_defaultK8sVersion = "1.24"
 	// _defaultNrWorkerNodes is the default number of worker nodes in the kind
 	// cluster
 	_defaultNrWorkerNodes = 3
@@ -125,6 +125,7 @@ var (
 		"1.21": "kindest/node:v1.21.1@sha256:69860bda5563ac81e3c0057d654b5253219618a22ec3a346306239bba8cfa1a6",
 		"1.22": "kindest/node:v1.22.0@sha256:b8bda84bb3a190e6e028b1760d277454a72267a5454b57db34437c34a588d047",
 		"1.23": "kindest/node:v1.23.0@sha256:49824ab1727c04e56a21a5d8372a402fcd32ea51ac96a2706a12af38934f81ac",
+		"1.24": "kindest/node:v1.24.7@sha256:577c630ce8e509131eab1aea12c022190978dd2f745aac5eb1fe65c0807eb315",
 	}
 )
 
